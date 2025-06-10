@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment | Bihar Bijli Smart Meter</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://i.supaimg.com/cd3ff11c-0aa9-44d0-8f04-27889543164d.jpg') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .payment-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: #1e3c72;
+      margin-bottom: 1.5rem;
+    }
+    .input-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    label {
+      display: block;
+      color: #333;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    input:focus {
+      border-color: #1e3c72;
+    }
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #1e3c72;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #2a5298;
+    }
+    .error {
+      color: #e63946;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .success {
+      color: #2a9d8f;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    @media (max-width: 480px) {
+      .payment-container {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <h2>Payment Gateway</h2>
+    <form id="paymentForm">
+      <div class="input-group">
+        <label for="caNumber">CA Number</label>
+        <input type="text" id="caNumber" placeholder="Enter CA number" required>
+      </div>
+      <div class="input-group">
+        <label for="mobile">Mobile Number</label>
+        <input type="tel" id="mobile" placeholder="Enter mobile number" pattern="[0-9]{10}" required>
+      </div>
+      <div class="input-group">
+        <label for="amount">Amount (₹)</label>
+        <input type="number" id="amount" placeholder="Enter amount" required min="1">
+      </div>
+      <button type="submit">Pay Now</button>
+      <p class="error" id="errorMsg">Invalid CA number, mobile, or amount</p>
+      <p class="success" id="successMsg">Payment successful!</p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const caNumber = document.getElementById('caNumber').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const amount = document.getElementById('amount').value;
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      const username = localStorage.getItem('username');
+      const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+      if (caNumber !== localStorage.getItem('caNumber') || 
+          mobile !== users[username].mobile || 
+          amount <= 0 || isNaN(amount)) {
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        return;
+      }
+
+      // Save transaction
+      const transactions = JSON.parse(localStorage.getItem(`transactions_${username}`) || '[]');
+      const date = new Date().toLocaleString();
+      transactions.push({ amount, date });
+      localStorage.setItem(`transactions_${username}`, JSON.stringify(transactions));
+
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
