@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | Bihar Bijli Smart Meter</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://i.supaimg.com/cd3ff11c-0aa9-44d0-8f04-27889543164d.jpg') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .create-account-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: #1e3c72;
+      margin-bottom: 1.5rem;
+    }
+    .input-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    label {
+      display: block;
+      color: #333;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    input:focus {
+      border-color: #1e3c72;
+    }
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #1e3c72;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #2a5298;
+    }
+    .error {
+      color: #e63946;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .success {
+      color: #2a9d8f;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .login-link {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #333;
+    }
+    .login-link a {
+      color: #1e3c72;
+      text-decoration: none;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+    .password-strength {
+      font-size: 0.85rem;
+      color: #333;
+      margin-top: 0.5rem;
+    }
+    .weak { color: #e63946; }
+    .medium { color: #f4a261; }
+    .strong { color: #2a9d8f; }
+    @media (max-width: 480px) {
+      .create-account-container {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="create-account-container">
+    <h2>Create Account</h2>
+    <form id="createAccountForm">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter username" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" required>
+        <p class="password-strength" id="passwordStrength">Password strength: Weak</p>
+      </div>
+      <div class="input-group">
+        <label for="caNumber">CA Number</label>
+        <input type="text" id="caNumber" placeholder="Enter CA number" required>
+      </div>
+      <div class="input-group">
+        <label for="mobile">Mobile Number</label>
+        <input type="tel" id="mobile" placeholder="Enter mobile number" pattern="[0-9]{10}" required>
+      </div>
+      <button type="submit">Create Account</button>
+      <p class="error" id="errorMsg">Invalid input or username exists</p>
+      <p class="success" id="successMsg">Please verify OTP</p>
+    </form>
+    <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
+  </div>
+
+  <script>
+    const passwordInput = document.getElementById('password');
+    const passwordStrength = document.getElementById('passwordStrength');
+
+    passwordInput.addEventListener('input', function() {
+      const password = passwordInput.value;
+      let strength = 'Weak';
+      let strengthClass = 'weak';
+      if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+        strength = 'Strong';
+        strengthClass = 'strong';
+      } else if (password.length >= 6) {
+        strength = 'Medium';
+        strengthClass = 'medium';
+      }
+      passwordStrength.textContent = `Password strength: ${strength}`;
+      passwordStrength.className = `password-strength ${strengthClass}`;
+    });
+
+    document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const caNumber = document.getElementById('caNumber').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+
+      if (username === '' || password === '' || caNumber === '' || !/^[0-9]{10}$/.test(mobile)) {
+        errorMsg.textContent = 'All fields are required; mobile must be 10 digits';
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorMsg.textContent = 'Password must be at least 6 characters';
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('users') || '{}');
+      if (users[username]) {
+        errorMsg.textContent = 'Username already exists';
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        return;
+      }
+
+      // Simulate OTP generation
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      localStorage.setItem('tempUser', JSON.stringify({ username, password, caNumber, mobile, otp }));
+      
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'otp.html';
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
